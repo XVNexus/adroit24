@@ -43,14 +43,14 @@ namespace Controllers
             this.isBall = isBall;
 
             // Apply form to player object
-            gameObject.LeanScale(new Vector3(size.x, isBall ? size.x : size.y, 1f), TransformTime).setEaseInOutSine();
+            gameObject.LeanScale(new Vector3(size.x, isBall ? size.x : size.y, 1f), TransformTime).setEaseInOutCubic();
             if (isBall)
             {
                 _cRigidbody2D.constraints = RigidbodyConstraints2D.None;
                 _cBoxCollider2D.enabled = false;
                 _cCircleCollider2D.enabled = true;
-                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutSine();
-                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutSine();
+                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutCubic();
+                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutCubic();
             }
             else
             {
@@ -58,8 +58,8 @@ namespace Controllers
                 transform.localRotation = quaternion.identity;
                 _cBoxCollider2D.enabled = true;
                 _cCircleCollider2D.enabled = false;
-                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutSine();
-                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutSine();
+                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutCubic();
+                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutCubic();
             }
         }
 
