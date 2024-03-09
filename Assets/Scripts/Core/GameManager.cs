@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Core
 {
-    public class GameManager
+    public class GameManager : MonoBehaviour
     {
         public static GameManager current;
         private void Awake() => current = this;

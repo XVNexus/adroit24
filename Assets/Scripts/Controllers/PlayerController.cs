@@ -1,3 +1,5 @@
+using Core;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Controllers
@@ -25,8 +27,12 @@ namespace Controllers
         [Header("Historical Variables")]
         private Vector3 _lastPosition;
 
-        // References
-        public Rigidbody2D cRigidbody2D;
+        [Header("References")]
+        public SpriteRenderer cSquareSpriteRenderer;
+        public SpriteRenderer cCircleSpriteRenderer;
+        private Rigidbody2D _cRigidbody2D;
+        private BoxCollider2D _cBoxCollider2D;
+        private CircleCollider2D _cCircleCollider2D;
 
         // Functions
         public void ChangeForm(float sizeX, float sizeY, bool isBall)
@@ -38,14 +44,24 @@ namespace Controllers
 
             // Apply form to player object
             transform.localScale = new Vector3(sizeX, isBall ? sizeX : sizeY, 1f);
-            // TODO: TRANSFORMATION BETWEEN BALL AND SQUARE
+            _cRigidbody2D.constraints = isBall ? RigidbodyConstraints2D.None : RigidbodyConstraints2D.FreezeRotation;
+            if (!isBall)
+            {
+                transform.localRotation = quaternion.identity;
+            }
+            _cBoxCollider2D.enabled = !isBall;
+            cSquareSpriteRenderer.enabled = !isBall;
+            _cCircleCollider2D.enabled = isBall;
+            cCircleSpriteRenderer.enabled = isBall;
         }
 
         // Events
         private void Start()
         {
             // Get references to required components
-            cRigidbody2D = GetComponent<Rigidbody2D>();
+            _cRigidbody2D = GetComponent<Rigidbody2D>();
+            _cBoxCollider2D = GetComponent<BoxCollider2D>();
+            _cCircleCollider2D = GetComponent<CircleCollider2D>();
         }
 
         private void OnCollisionEnter2D(Collision2D other)
@@ -60,6 +76,12 @@ namespace Controllers
 
         private void OnCollision(Collision2D other)
         {
+            var contactPoint = other.contacts[0].point.y;
+            var position = _lastPosition.y;
+            var touchedGround = GameManager.current.invertGravity
+                ? contactPoint > position + .45f
+                : contactPoint < position - .45f;
+            if (!touchedGround) return;
             framesOnGround = MaxFramesOnGround;
             isOnGround = true;
         }
@@ -70,14 +92,20 @@ namespace Controllers
             // Get movement data
             var iHorizontal = Input.GetAxis("Horizontal");
             var iVertical = Input.GetAxis("Vertical");
+            var iJump = GameManager.current.invertGravity ? iVertical < 0f : iVertical > 0f;
 
             // Apply movement
-            var forceX = (iHorizontal * moveSpeed - cRigidbody2D.velocity.x) * moveForce * (isOnGround ? 1f : .1f);
-            var forceY = iVertical * Physics2D.gravity.magnitude * .6f;
-            cRigidbody2D.AddForce(new Vector2(forceX, forceY));
-            if (iVertical > 0 && isOnGround && _jumpCooldown == 0)
+            var forceX = !isBall
+                ? (iHorizontal * moveSpeed - _cRigidbody2D.velocity.x) * moveForce * (isOnGround ? 1f : .1f)
+                : iHorizontal * moveForce * .2f;
+            var forceY = !isBall
+                ? iVertical * Physics2D.gravity.magnitude * .6f
+                : 0f;
+            _cRigidbody2D.AddForce(new Vector2(forceX, forceY));
+            var jump = !isBall && iJump && isOnGround && _jumpCooldown == 0;
+            if (jump)
             {
-                cRigidbody2D.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
+                _cRigidbody2D.AddForce(-Physics2D.gravity.normalized * jumpForce, ForceMode2D.Impulse);
                 _jumpCooldown = MaxFramesOnGround + 1;
             }
 
