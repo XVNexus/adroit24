@@ -159,7 +159,7 @@ MonoBehaviour:
   moveSpeed: 10
   moveForce: 20
   jumpForce: 10
-  size: {x: 0, y: 0}
+  size: {x: 1, y: 1}
   isBall: 0
   framesOnGround: 0
   isOnGround: 0

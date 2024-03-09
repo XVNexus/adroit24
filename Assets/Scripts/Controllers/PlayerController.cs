@@ -66,6 +66,9 @@ namespace Controllers
         // Events
         private void Start()
         {
+            // Subscribe to events
+            EventSystem.current.OnPlayerSpawn += OnPlayerSpawn;
+
             // Get references to required components
             _cRigidbody2D = GetComponent<Rigidbody2D>();
             _cBoxCollider2D = GetComponent<BoxCollider2D>();
@@ -86,12 +89,17 @@ namespace Controllers
         {
             var contactPoint = other.contacts[0].point.y;
             var position = _lastPosition.y;
-            var touchedGround = GameManager.current.invertGravity
+            var touchedGround = LevelSystem.current.invertGravity
                 ? contactPoint > position
                 : contactPoint < position;
             if (!touchedGround) return;
             framesOnGround = MaxFramesOnGround;
             isOnGround = true;
+        }
+
+        private void OnPlayerSpawn(Vector2 position)
+        {
+            transform.position = position;
         }
 
         // Updates
@@ -100,7 +108,7 @@ namespace Controllers
             // Get movement data
             var iHorizontal = Input.GetAxis("Horizontal");
             var iVertical = Input.GetAxis("Vertical");
-            var iJump = GameManager.current.invertGravity ? iVertical < 0f : iVertical > 0f;
+            var iJump = LevelSystem.current.invertGravity ? iVertical < 0f : iVertical > 0f;
 
             // Apply movement
             var forceX = !isBall

@@ -29,7 +29,7 @@ namespace Controllers
             }
             if (modifyEnvironment)
             {
-                GameManager.current.ChangeForm(invertGravity);
+                LevelSystem.current.ChangeForm(invertGravity);
             }
         }
     }
