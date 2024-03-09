@@ -9,8 +9,7 @@ namespace Controllers
 
         [Header("Player Modification")]
         public bool modifyPlayer;
-        public float playerSizeX;
-        public float playerSizeY;
+        public Vector2 playerSize;
         public bool playerIsBall;
 
         [Header("Environment Modification")]
@@ -26,7 +25,7 @@ namespace Controllers
             // Apply modifications
             if (modifyPlayer)
             {
-                other.GetComponent<PlayerController>().ChangeForm(playerSizeX, playerSizeY, playerIsBall);
+                other.GetComponent<PlayerController>().ChangeForm(playerSize, playerIsBall);
             }
             if (modifyEnvironment)
             {

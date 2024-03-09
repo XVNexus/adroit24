@@ -8,14 +8,15 @@ namespace Controllers
     {
         public const string Tag = "Player";
 
+        public const float TransformTime = .5f;
+
         [Header("Movement Settings")]
         public float moveSpeed;
         public float moveForce;
         public float jumpForce;
 
         [Header("Player Shape")]
-        public float sizeX;
-        public float sizeY;
+        public Vector2 size;
         public bool isBall;
 
         [Header("Ground Contact")]
@@ -35,24 +36,31 @@ namespace Controllers
         private CircleCollider2D _cCircleCollider2D;
 
         // Functions
-        public void ChangeForm(float sizeX, float sizeY, bool isBall)
+        public void ChangeForm(Vector2 size, bool isBall)
         {
             // Update variables with new settings
-            this.sizeX = sizeX;
-            this.sizeY = sizeY;
+            this.size = size;
             this.isBall = isBall;
 
             // Apply form to player object
-            transform.localScale = new Vector3(sizeX, isBall ? sizeX : sizeY, 1f);
-            _cRigidbody2D.constraints = isBall ? RigidbodyConstraints2D.None : RigidbodyConstraints2D.FreezeRotation;
-            if (!isBall)
+            gameObject.LeanScale(new Vector3(size.x, isBall ? size.x : size.y, 1f), TransformTime).setEaseInOutSine();
+            if (isBall)
             {
-                transform.localRotation = quaternion.identity;
+                _cRigidbody2D.constraints = RigidbodyConstraints2D.None;
+                _cBoxCollider2D.enabled = false;
+                _cCircleCollider2D.enabled = true;
+                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutSine();
+                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutSine();
             }
-            _cBoxCollider2D.enabled = !isBall;
-            cSquareSpriteRenderer.enabled = !isBall;
-            _cCircleCollider2D.enabled = isBall;
-            cCircleSpriteRenderer.enabled = isBall;
+            else
+            {
+                _cRigidbody2D.constraints = RigidbodyConstraints2D.FreezeRotation;
+                transform.localRotation = quaternion.identity;
+                _cBoxCollider2D.enabled = true;
+                _cCircleCollider2D.enabled = false;
+                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutSine();
+                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutSine();
+            }
         }
 
         // Events
@@ -79,8 +87,8 @@ namespace Controllers
             var contactPoint = other.contacts[0].point.y;
             var position = _lastPosition.y;
             var touchedGround = GameManager.current.invertGravity
-                ? contactPoint > position + .45f
-                : contactPoint < position - .45f;
+                ? contactPoint > position
+                : contactPoint < position;
             if (!touchedGround) return;
             framesOnGround = MaxFramesOnGround;
             isOnGround = true;
