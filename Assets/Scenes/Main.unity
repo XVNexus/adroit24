@@ -379,8 +379,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  moveForce: 10
-  jumpForce: 12
+  moveForce: 20
+  jumpForce: 10
   cRigidbody2D: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
@@ -432,7 +432,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
