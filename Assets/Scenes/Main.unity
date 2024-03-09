@@ -253,7 +253,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 4
+  m_Constraints: 0
 --- !u!61 &241337279
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -381,6 +381,11 @@ MonoBehaviour:
   moveSpeed: 10
   moveForce: 20
   jumpForce: 10
+  sizeX: 0
+  sizeY: 0
+  isBall: 0
+  framesOnGround: 0
+  isOnGround: 0
   cRigidbody2D: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
@@ -696,7 +701,7 @@ GameObject:
   - component: {fileID: 902185914}
   m_Layer: 0
   m_Name: Ground
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
