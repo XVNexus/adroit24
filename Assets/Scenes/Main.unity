@@ -389,14 +389,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b99743188484e7ab3128c395d763487, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounds:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 0
-    height: 0
+  bounds: {x: -23, y: -13, z: 23, w: 13}
   levelPrefabs:
-  - {fileID: 5832360439990955559, guid: 2f02c1d75c577c71b8b9d1bcfde61d42, type: 3}
+  - {fileID: 5832360439990955559, guid: 6e76b628829c47c95831c446711c5dd8, type: 3}
+  - {fileID: 5832360439990955559, guid: bc116f114d41738788a13cf9eed3816b, type: 3}
+  - {fileID: 5832360439990955559, guid: 3c0e0ff4ca6304b8c8993ed987b6497e, type: 3}
+  - {fileID: 5832360439990955559, guid: 094c127f75c8a71a096786a31354b1f0, type: 3}
+  - {fileID: 5832360439990955559, guid: c0a4362f9dd3a57788b3b83882c3bd38, type: 3}
   gravityStrength: 0
   invertGravity: 0
 --- !u!114 &660911574

@@ -14,23 +14,19 @@ namespace Controllers
         public float moveSpeed;
         public float moveForce;
         public float jumpForce;
+        private int _jumpCooldown;
+        private Vector2 _respawnPoint;
 
         [Header("Player Shape")]
         public Vector2 size;
         public bool isBall;
-
-        [Header("Ground Contact")]
-        public const int MaxFramesOnGround = 5;
-        public int framesOnGround;
-        public bool isOnGround;
-        private int _jumpCooldown;
-
-        [Header("Historical Variables")]
-        private Vector3 _lastPosition;
+        private float _movementScale = 1f;
+        private float _movementScaleSqrt = 1f;
 
         [Header("References")]
         public SpriteRenderer cSquareSpriteRenderer;
         public SpriteRenderer cCircleSpriteRenderer;
+        public SensorController cSensorController;
         private Rigidbody2D _cRigidbody2D;
         private BoxCollider2D _cBoxCollider2D;
         private CircleCollider2D _cCircleCollider2D;
@@ -41,9 +37,12 @@ namespace Controllers
             // Update variables with new settings
             this.size = size;
             this.isBall = isBall;
+            _movementScale = Mathf.Floor(size.magnitude / Mathf.Sqrt(2f) * 2) * .5f;
+            _movementScaleSqrt = Mathf.Sqrt(_movementScale);
 
             // Apply form to player object
-            gameObject.LeanScale(new Vector3(size.x, isBall ? size.x : size.y, 1f), TransformTime).setEaseInOutCubic();
+            var newScale = new Vector3(size.x * .9f, (isBall ? size.x : size.y) * .9f, 1f);
+            gameObject.LeanScale(newScale, TransformTime).setEaseInOutCubic();
             if (isBall)
             {
                 _cRigidbody2D.constraints = RigidbodyConstraints2D.None;
@@ -63,6 +62,29 @@ namespace Controllers
             }
         }
 
+        public void Respawn()
+        {
+            DisablePhysics();
+            transform.position = _respawnPoint;
+            EnablePhysics();
+        }
+
+        public void EnablePhysics()
+        {
+            _cRigidbody2D.simulated = true;
+            _cBoxCollider2D.isTrigger = false;
+            _cCircleCollider2D.isTrigger = false;
+        }
+
+        public void DisablePhysics()
+        {
+            _cRigidbody2D.simulated = false;
+            _cBoxCollider2D.isTrigger = true;
+            _cCircleCollider2D.isTrigger = true;
+            _cRigidbody2D.velocity = Vector2.zero;
+            _cRigidbody2D.angularVelocity = 0f;
+        }
+
         // Events
         private void Start()
         {
@@ -75,68 +97,52 @@ namespace Controllers
             _cCircleCollider2D = GetComponent<CircleCollider2D>();
         }
 
-        private void OnCollisionEnter2D(Collision2D other)
-        {
-            OnCollision(other);
-        }
-
-        private void OnCollisionStay2D(Collision2D other)
-        {
-            OnCollision(other);
-        }
-
-        private void OnCollision(Collision2D other)
-        {
-            var contactPoint = other.contacts[0].point.y;
-            var position = _lastPosition.y;
-            var touchedGround = LevelSystem.current.invertGravity
-                ? contactPoint > position
-                : contactPoint < position;
-            if (!touchedGround) return;
-            framesOnGround = MaxFramesOnGround;
-            isOnGround = true;
-        }
-
         private void OnPlayerSpawn(Vector2 position)
         {
             transform.position = position;
+            _respawnPoint = position;
+            EnablePhysics();
         }
 
         // Updates
         private void FixedUpdate()
         {
-            // Get movement data
+            // Get movement input
             var iHorizontal = Input.GetAxis("Horizontal");
             var iVertical = Input.GetAxis("Vertical");
             var iJump = LevelSystem.current.invertGravity ? iVertical < 0f : iVertical > 0f;
+            var isOnGround = cSensorController.isTriggered;
 
             // Apply movement
+            var gravityFactor = LevelSystem.current.invertGravity ? 1f : -1f;
             var forceX = !isBall
-                ? (iHorizontal * moveSpeed - _cRigidbody2D.velocity.x) * moveForce * (isOnGround ? 1f : .1f)
+                ? (iHorizontal * moveSpeed * _movementScale - _cRigidbody2D.velocity.x) * moveForce * (isOnGround ? 1f : .1f)
                 : iHorizontal * moveForce * .2f;
             var forceY = !isBall
-                ? iVertical * Physics2D.gravity.magnitude * .6f
-                : 0f;
-            _cRigidbody2D.AddForce(new Vector2(forceX, forceY));
+                ? iVertical * Physics2D.gravity.magnitude * .5f
+                : -Physics2D.gravity.y * .5f;
+            _cRigidbody2D.AddForce(new Vector2(forceX * _movementScaleSqrt, forceY));
             var jump = !isBall && iJump && isOnGround && _jumpCooldown == 0;
             if (jump)
             {
-                _cRigidbody2D.AddForce(-Physics2D.gravity.normalized * jumpForce, ForceMode2D.Impulse);
-                _jumpCooldown = MaxFramesOnGround + 1;
+                _cRigidbody2D.AddForce(new Vector2(0f, jumpForce * _movementScaleSqrt * -gravityFactor), ForceMode2D.Impulse);
+                _jumpCooldown = SensorController.MaxTriggeredFrames + 1;
             }
 
-            // Update on ground and jump status
-            if (framesOnGround > 0)
-            {
-                isOnGround = --framesOnGround > 0;
-            }
+            // Update jump status
             if (_jumpCooldown > 0)
             {
                 _jumpCooldown--;
             }
 
-            // Save current position for future reference
-            _lastPosition = transform.position;
+            // Kill player if out of bounds
+            var bounds = LevelSystem.current.bounds;
+            var playerPosition = transform.position;
+            if (playerPosition.x < bounds.x || playerPosition.x > bounds.z
+                || playerPosition.y < bounds.y || playerPosition.y > bounds.w)
+            {
+                Respawn();
+            }
         }
     }
 }

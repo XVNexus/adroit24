@@ -8,7 +8,7 @@ namespace Core
         private void Awake() => current = this;
 
         [Header("Level Info")]
-        public Rect bounds;
+        public Vector4 bounds;
         public GameObject[] levelPrefabs;
         private int _currentLevelIndex = -1;
         private GameObject _currentLevel;
@@ -48,6 +48,7 @@ namespace Core
         {
             this.invertGravity = invertGravity;
             Physics2D.gravity = new Vector2(0f, invertGravity ? gravityStrength : -gravityStrength);
+            EventSystem.current.EmitEnvironmentUpdate(invertGravity);
         }
 
         // Events
