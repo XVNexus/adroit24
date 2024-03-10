@@ -5,8 +5,6 @@ namespace Controllers
 {
     public class ModifierController : MonoBehaviour
     {
-        public const string Tag = "Modifier";
-
         [Header("Player Modification")]
         public bool modifyPlayer;
         public Vector2 playerSize;

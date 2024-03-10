@@ -8,8 +8,6 @@ namespace Controllers
     {
         public const string Tag = "Player";
 
-        public const float TransformTime = .5f;
-
         [Header("Movement Settings")]
         public float moveSpeed;
         public float moveForce;
@@ -42,14 +40,14 @@ namespace Controllers
 
             // Apply form to player object
             var newScale = new Vector3(size.x * .9f, (isBall ? size.x : size.y) * .9f, 1f);
-            gameObject.LeanScale(newScale, TransformTime).setEaseInOutCubic();
+            gameObject.LeanScale(newScale, EventSystem.PlayerTransformTime).setEaseInOutCubic();
             if (isBall)
             {
                 _cRigidbody2D.constraints = RigidbodyConstraints2D.None;
                 _cBoxCollider2D.enabled = false;
                 _cCircleCollider2D.enabled = true;
-                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutCubic();
-                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutCubic();
+                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.zero, EventSystem.PlayerTransformTime).setEaseInOutCubic();
+                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.one, EventSystem.PlayerTransformTime).setEaseInOutCubic();
             }
             else
             {
@@ -57,16 +55,19 @@ namespace Controllers
                 transform.localRotation = quaternion.identity;
                 _cBoxCollider2D.enabled = true;
                 _cCircleCollider2D.enabled = false;
-                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.one, TransformTime).setEaseInOutCubic();
-                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.zero, TransformTime).setEaseInOutCubic();
+                cSquareSpriteRenderer.gameObject.LeanScale(Vector3.one, EventSystem.PlayerTransformTime).setEaseInOutCubic();
+                cCircleSpriteRenderer.gameObject.LeanScale(Vector3.zero, EventSystem.PlayerTransformTime).setEaseInOutCubic();
             }
         }
 
         public void Respawn()
         {
             DisablePhysics();
-            transform.position = _respawnPoint;
-            EnablePhysics();
+            gameObject.LeanMove(_respawnPoint, EventSystem.LevelTransitionTime * .5f)
+                .setEaseOutCubic().setOnComplete(() =>
+            {
+                EnablePhysics();
+            });
         }
 
         public void EnablePhysics()
@@ -90,6 +91,7 @@ namespace Controllers
         {
             // Subscribe to events
             EventSystem.current.OnPlayerSpawn += OnPlayerSpawn;
+            EventSystem.current.OnPlayerDespawn += OnPlayerDespawn;
 
             // Get references to required components
             _cRigidbody2D = GetComponent<Rigidbody2D>();
@@ -99,9 +101,17 @@ namespace Controllers
 
         private void OnPlayerSpawn(Vector2 position)
         {
-            transform.position = position;
             _respawnPoint = position;
-            EnablePhysics();
+            transform.position = position - new Vector2(LevelSystem.HorizontalOffset, 0f);
+            gameObject.LeanMove(position, EventSystem.LevelTransitionTime * .5f).setEaseOutCubic().setOnComplete(() =>
+            {
+                EnablePhysics();
+            });
+        }
+
+        private void OnPlayerDespawn()
+        {
+            gameObject.LeanMove(transform.position + new Vector3(LevelSystem.HorizontalOffset, 0f), EventSystem.LevelTransitionTime * .5f).setEaseInCubic();
         }
 
         // Updates
@@ -135,11 +145,12 @@ namespace Controllers
                 _jumpCooldown--;
             }
 
-            // Kill player if out of bounds
+            // Respawn player if out of bounds
             var bounds = LevelSystem.current.bounds;
             var playerPosition = transform.position;
-            if (playerPosition.x < bounds.x || playerPosition.x > bounds.z
-                || playerPosition.y < bounds.y || playerPosition.y > bounds.w)
+            var outOfBounds = playerPosition.x < bounds.x || playerPosition.x > bounds.z
+                || playerPosition.y < bounds.y || playerPosition.y > bounds.w;
+            if (outOfBounds && _cRigidbody2D.simulated)
             {
                 Respawn();
             }

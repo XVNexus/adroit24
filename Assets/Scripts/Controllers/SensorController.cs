@@ -11,17 +11,11 @@ namespace Controllers
         public bool isTriggered;
         private int _triggeredFrames;
 
-        [Header("References")]
-        private BoxCollider2D _cGroundBoxCollider2D;
-
         // Events
         private void Start()
         {
             // Subscribe to events
             EventSystem.current.OnEnvironmentUpdate += OnEnvironmentUpdate;
-
-            // Get references to required components
-            _cGroundBoxCollider2D = GetComponent<BoxCollider2D>();
         }
 
         private void OnTriggerEnter2D(Collider2D other)

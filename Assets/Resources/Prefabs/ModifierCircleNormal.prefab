@@ -64,6 +64,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4831359288563199174, guid: a7304f20892e26a79a5f659f4c76f899, type: 3}
+      propertyPath: m_Color.g
+      value: 0.5019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4831359288563199174, guid: a7304f20892e26a79a5f659f4c76f899, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5106468229094163615, guid: a7304f20892e26a79a5f659f4c76f899, type: 3}
       propertyPath: m_Name
       value: ModifierCircleNormal

@@ -7,6 +7,9 @@ namespace Core
         public static LevelSystem current;
         private void Awake() => current = this;
 
+        public const float HorizontalOffset = 50f;
+        public const float VerticalOffset = 25f;
+
         [Header("Level Info")]
         public Vector4 bounds;
         public GameObject[] levelPrefabs;
@@ -19,10 +22,16 @@ namespace Core
         public bool invertGravity;
 
         // Functions
-        public bool SwitchLevel(int index)
+        public void SwitchLevel(int index)
         {
-            UnloadLevel();
-            return LoadLevel(index);
+            EventSystem.current.EmitPlayerDespawn();
+            _currentLevel.LeanMove(new Vector3(0f, VerticalOffset), EventSystem.LevelTransitionTime * .5f).setEaseInQuint().setOnComplete(() =>
+            {
+                UnloadLevel();
+                LoadLevel(index);
+                _currentLevel.transform.position = new Vector3(0f, -VerticalOffset);
+                _currentLevel.LeanMove(Vector3.zero, EventSystem.LevelTransitionTime * .5f).setEaseOutQuint();
+            });
         }
 
         public bool LoadLevel(int index)
