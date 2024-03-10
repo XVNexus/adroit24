@@ -248,8 +248,6 @@ MonoBehaviour:
   cSquareSpriteRenderer: {fileID: 5014517810939203335}
   cCircleSpriteRenderer: {fileID: 8105278854953657252}
   cSensorController: {fileID: 6033678685619607010}
-  cSpawnParticleSystem: {fileID: 0}
-  cDespawnParticleSystem: {fileID: 0}
 --- !u!1 &6244051777009639002
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,7 +320,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: ebfae5634796e19ca8d6ad8e4800cafa, type: 3}
   m_Color: {r: 1, g: 0.5, b: 0, a: 1}
   m_FlipX: 0
@@ -406,7 +404,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: b7e48bc6e7f84cbd5a0d4670451eb389, type: 3}
   m_Color: {r: 0, g: 0.5, b: 1, a: 1}
   m_FlipX: 0
