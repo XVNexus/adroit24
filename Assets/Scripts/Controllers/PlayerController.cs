@@ -101,6 +101,7 @@ namespace Controllers
 
         private void OnPlayerSpawn(Vector2 position)
         {
+            ChangeForm(new Vector2(1f, 1f), false);
             _respawnPoint = position;
             transform.position = position - new Vector2(LevelSystem.HorizontalOffset, 0f);
             gameObject.LeanMove(position, EventSystem.LevelTransitionTime * .5f).setEaseOutCubic().setOnComplete(() =>
